@@ -15,3 +15,9 @@ Als de link nog niet werkt:
 4. Wacht tot GitHub Pages klaar is en open de URL hierboven.
 
 Three.js wordt via jsDelivr geladen; een internetverbinding is nodig.
+
+## Stad en 3D-assets
+
+De stadsuitbreiding wordt procedureel opgebouwd in [city.js](./city.js): extra woonblokken, winkelpuien, tramrails, fietsstroken, bomen, straatlampen, bankjes en een plein. Dit is eigen geometrie voor een lichte browsergame, geen exacte bouwkundige reconstructie.
+
+Geselecteerde open-source bronnen en licentie-informatie staan in [assets/README.md](./assets/README.md) en [assets/THIRD_PARTY_CREDITS.md](./assets/THIRD_PARTY_CREDITS.md). De externe modellen zijn nog niet in de game gebundeld; controleer per bestand de licentie voordat je ze toevoegt.
