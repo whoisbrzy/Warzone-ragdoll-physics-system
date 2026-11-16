@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#14202a"><title>Plein '40-'45 3D</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9bc4d8;font-family:system-ui,Arial;touch-action:none;overscroll-behavior:none}canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;z-index:3;top:env(safe-area-inset-top,10px);left:10px;max-width:min(300px,calc(100vw - 20px));padding:10px 12px;background:#101820df;color:white;border:1px solid #ffffff35;border-radius:12px;font-size:13px;line-height:1.45;pointer-events:none}
+#hud b{font-size:15px}#status{color:#a8e6b5}#help{color:#c9d4dc;font-size:11px}
+#hint{position:fixed;z-index:3;bottom:12px;left:50%;transform:translateX(-50%);padding:8px 12px;background:#101820d9;color:white;border-radius:9px;font-size:12px;white-space:nowrap;pointer-events:none}
+#mobile{display:none;position:fixed;z-index:4;inset:0;pointer-events:none}
+#stick{position:absolute;left:18px;bottom:calc(22px + env(safe-area-inset-bottom));width:128px;height:128px;border-radius:50%;background:#14202a66;border:2px solid #ffffff70;pointer-events:auto;touch-action:none}
+#nub{position:absolute;left:39px;top:39px;width:46px;height:46px;border-radius:50%;background:#ffffffb8;border:2px solid #fff;pointer-events:none}
+.action{position:absolute;right:20px;width:68px;height:68px;border-radius:50%;border:2px solid #ffffffb0;background:#14202acc;color:white;font-weight:700;font-size:12px;pointer-events:auto;touch-action:none}
+#enter{bottom:calc(25px + env(safe-area-inset-bottom));right:22px}#run{bottom:calc(105px + env(safe-area-inset-bottom));right:28px;width:58px;height:58px}
+@media (pointer:coarse),(max-width:800px){#mobile{display:block}#hint{bottom:calc(164px + env(safe-area-inset-bottom));font-size:10px}#help{display:none}#hud{font-size:12px}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="hud"><b>Plein '40-'45 · 3D</b><br><span id="status">Te voet</span><br><span id="help">WASD bewegen · muis camera · E instappen · Shift sprinten</span><span id="mobilehelp">Linker joystick: bewegen · sleep rechts: camera</span></div>
+<div id="hint">Mobiel: gebruik de joystick · Tik op AUTO om in/uit te stappen</div>
+<div id="mobile"><div id="stick"><div id="nub"></div></div><button class="action" id="enter">AUTO</button><button class="action" id="run">REN</button></div>
+<script type="module">
+import * as THREE from 'three';
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc4d8);scene.fog=new THREE.Fog(0x9bc4d8,110,340);
+const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,700);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xddeeff,0x53604b,1.9));const sun=new THREE.DirectionalLight(0xfff1d6,2);sun.position.set(-70,110,55);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-150;sun.shadow.camera.right=150;sun.shadow.camera.top=150;sun.shadow.camera.bottom=-150;scene.add(sun);
+const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.88});
+const grass=mat(0x66865b),road=mat(0x343a40),stone=mat(0xb7b5a9),brick=mat(0xb66f55),pale=mat(0xd4c6ad),glass=mat(0x557d8a),dark=mat(0x242a30),white=mat(0xe9e4d8),green=mat(0x47794b);
+function box(w,h,d,m,x,y,z,cast=true){let o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=true;scene.add(o);return o}
+function floor(w,d,m,x,z){box(w,.2,d,m,x,-.12,z,false)}
+floor(440,440,grass,0,0);floor(440,24,road,0,-75);floor(440,24,road,0,75);floor(24,440,road,-100,0);floor(24,440,road,100,0);floor(440,18,road,0,0);floor(18,440,road,0,0);floor(118,82,stone,0,0);floor(74,42,mat(0xaaa99e),0,0);
+for(let i=-4;i<=4;i++){box(2,.08,10,white,i*4,.02,-12,false);box(2,.08,10,white,i*4,.02,12,false)}
+function building(x,z,w,d,h,m){box(w,h,d,m,x,h/2,z);box(w+1,.8,d+1,dark,x,h+.35,z);for(let f=0;f<Math.floor(h/3);f++)for(let xx=-w/2+2;xx<w/2-1;xx+=3.6){box(1.7,1.45,.12,glass,x+xx,1.2+f*2.7,z-d/2-.08,false);box(1.7,.13,.2,white,x+xx, .38+f*2.7,z-d/2-.1,false)}box(w*.72,.75,.2,mat(0x9f3932),x,h*.62,z-d/2-.18,false)}
+building(-7,-52,72,20,8,pale);building(-145,-25,38,34,21,brick);building(-145,35,38,34,25,pale);building(145,-28,42,32,24,pale);building(145,35,42,32,19,brick);building(-45,-145,48,38,22,pale);building(45,-145,48,38,27,brick);building(-45,145,48,38,20,brick);building(45,145,48,38,24,pale);
+for(let s of [-1,1])for(let r=0;r<3;r++)for(let c=0;c<3;c++)building(s*(145+c*38),-105+r*95,27,25,18+(r%2)*4,(r+c)%2?brick:pale);
+for(let x=-48;x<=48;x+=12)for(let z=-31;z<=31;z+=12){if(Math.abs(x)<38&&Math.abs(z)<21)continue;let t=new THREE.Group();let tr=new THREE.Mesh(new THREE.CylinderGeometry(.35,.5,3,7),mat(0x69503a));tr.position.y=1.5;t.add(tr);let cr=new THREE.Mesh(new THREE.SphereGeometry(2.2,8,7),green);cr.position.y=4.1;cr.castShadow=true;t.add(cr);t.position.set(x,0,z);scene.add(t)}
+const water=new THREE.Mesh(new THREE.BoxGeometry(22,.3,260),new THREE.MeshStandardMaterial({color:0x397d91,roughness:.25}));water.position.set(-195,.02,0);scene.add(water);for(let z of [-65,65])box(30,.5,8,stone,-195,.35,z);
+for(let x=-180;x<=180;x+=30)for(let z of [-91,91]){box(.22,7,.22,dark,x,3.5,z,false);box(1.7,.18,.5,mat(0xd8b64e),x+.65,7,z,false)}
+for(let x of [-24,24]){box(9,.35,1.5,brick,x,.8,0);box(9,.3,1.5,dark,x,.35,0)}
+const player=new THREE.Group();let body=new THREE.Mesh(new THREE.CapsuleGeometry(.48,.95,4,8),mat(0x315c88));body.position.y=1.2;body.castShadow=true;player.add(body);let head=new THREE.Mesh(new THREE.SphereGeometry(.34,12,10),mat(0xd6ad8d));head.position.y=2.18;player.add(head);player.position.set(0,0,28);scene.add(player);
+const car=new THREE.Group();let cb=new THREE.Mesh(new THREE.BoxGeometry(4.2,1.25,7.2),mat(0x246b9a));cb.position.y=1.05;cb.castShadow=true;car.add(cb);let cab=new THREE.Mesh(new THREE.BoxGeometry(3.35,1.25,3.4),glass);cab.position.set(0,2,-.35);car.add(cab);for(let x of [-1.55,1.55])for(let z of [-2.25,2.25]){let wh=new THREE.Mesh(new THREE.CylinderGeometry(.72,.72,.42,14),dark);wh.rotation.z=Math.PI/2;wh.position.set(x,.68,z);car.add(wh)}car.position.set(18,0,30);scene.add(car);
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='e')toggleCar()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let inCar=false,yaw=0,camYaw=0,carSpeed=0,mouseX=0,mouseY=0,pointer=false;
+function toggleCar(){if(!inCar&&player.position.distanceTo(car.position)<9){inCar=true;player.visible=false;document.querySelector('#status').textContent='In de auto'}else if(inCar){inCar=false;player.visible=true;player.position.copy(car.position).add(new THREE.Vector3(4,0,0));document.querySelector('#status').textContent='Te voet'}}
+document.querySelector('#enter').addEventListener('pointerdown',e=>{e.preventDefault();toggleCar()});
+renderer.domElement.addEventListener('click',()=>{if(matchMedia('(pointer:fine)').matches)renderer.domElement.requestPointerLock?.()});
+document.addEventListener('pointerlockchange',()=>pointer=document.pointerLockElement===renderer.domElement);
+document.addEventListener('mousemove',e=>{if(pointer){mouseX-=e.movementX*.0025;mouseY=Math.max(-.7,Math.min(.7,mouseY+e.movementY*.002))}});
+let joy={x:0,y:0},stick=document.querySelector('#stick'),nub=document.querySelector('#nub'),stickId=null;
+stick.addEventListener('pointerdown',e=>{stickId=e.pointerId;stick.setPointerCapture(stickId);moveStick(e)});
+stick.addEventListener('pointermove',e=>{if(e.pointerId===stickId)moveStick(e)});
+function moveStick(e){let r=stick.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),max=43,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}joy.x=dx/max;joy.y=dy/max;nub.style.transform=`translate(${dx}px,${dy}px)`}
+function endStick(e){if(e.pointerId===stickId){stickId=null;joy.x=joy.y=0;nub.style.transform='translate(0,0)'}}stick.addEventListener('pointerup',endStick);stick.addEventListener('pointercancel',endStick);
+let lookId=null,lastX=0,lastY=0;renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&e.clientX>innerWidth*.42){lookId=e.pointerId;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(lookId)}});renderer.domElement.addEventListener('pointermove',e=>{if(e.pointerId===lookId){mouseX-=(e.clientX-lastX)*.008;mouseY=Math.max(-.7,Math.min(.7,mouseY+(e.clientY-lastY)*.006));lastX=e.clientX;lastY=e.clientY}});renderer.domElement.addEventListener('pointerup',e=>{if(e.pointerId===lookId)lookId=null});
+let running=false;const runBtn=document.querySelector('#run');runBtn.addEventListener('pointerdown',e=>{e.preventDefault();running=true});for(let ev of ['pointerup','pointercancel','pointerleave'])runBtn.addEventListener(ev,()=>running=false);
+const clock=new THREE.Clock(),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function animate(){requestAnimationFrame(animate);let dt=Math.min(clock.getDelta(),.04),mx=joy.x+(keys.d?1:0)-(keys.a?1:0),my=-joy.y+(keys.w?1:0)-(keys.s?1:0);let mobile=matchMedia('(pointer:coarse)').matches;
+if(inCar){if(my>.15||keys.w)carSpeed+=22*dt;if(my<-.15||keys.s)carSpeed-=25*dt;carSpeed*=Math.pow(.975,dt*60);carSpeed=clamp(carSpeed,-13,32);if(mx<-.15||keys.a)yaw+=1.5*dt*(carSpeed>=0?1:-1);if(mx>.15||keys.d)yaw-=1.5*dt*(carSpeed>=0?1:-1);car.rotation.y=yaw;car.position.add(new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)).multiplyScalar(carSpeed*dt));car.position.x=clamp(car.position.x,-205,205);car.position.z=clamp(car.position.z,-205,205)}
+else{let dir=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),right=new THREE.Vector3(dir.z,0,-dir.x),speed=(running||keys.shift)?12:7;player.position.addScaledVector(dir,my*speed*dt);player.position.addScaledVector(right,mx*speed*dt);if(Math.abs(mx)+Math.abs(my)>.1)player.rotation.y=yaw;player.position.x=clamp(player.position.x,-210,210);player.position.z=clamp(player.position.z,-210,210)}
+const target=inCar?car.position:player.position,cy=yaw+mouseX,d=inCar?15:11,h=inCar?7:6,desired=new THREE.Vector3(target.x-Math.sin(cy)*d,target.y+h-mouseY*7,target.z-Math.cos(cy)*d);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(target.x,target.y+1.5,target.z);renderer.render(scene,camera)}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7))});
+</script></body></html>
