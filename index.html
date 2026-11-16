@@ -23,6 +23,7 @@
 <div id="mobile"><div id="stick"><div id="nub"></div></div><button class="action" id="enter">AUTO</button><button class="action" id="run">REN</button></div>
 <script type="module">
 import * as THREE from 'three';
+import { addAmsterdamWestCity } from './city.js';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc4d8);scene.fog=new THREE.Fog(0x9bc4d8,110,340);
 const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,700);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.appendChild(renderer.domElement);
@@ -62,5 +63,6 @@ if(inCar){if(my>.15||keys.w)carSpeed+=22*dt;if(my<-.15||keys.s)carSpeed-=25*dt;c
 else{let dir=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),right=new THREE.Vector3(dir.z,0,-dir.x),speed=(running||keys.shift)?12:7;player.position.addScaledVector(dir,my*speed*dt);player.position.addScaledVector(right,mx*speed*dt);if(Math.abs(mx)+Math.abs(my)>.1)player.rotation.y=yaw;player.position.x=clamp(player.position.x,-210,210);player.position.z=clamp(player.position.z,-210,210)}
 const target=inCar?car.position:player.position,cy=yaw+mouseX,d=inCar?15:11,h=inCar?7:6,desired=new THREE.Vector3(target.x-Math.sin(cy)*d,target.y+h-mouseY*7,target.z-Math.cos(cy)*d);camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(target.x,target.y+1.5,target.z);renderer.render(scene,camera)}
 animate();
+addAmsterdamWestCity(scene, THREE);
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7))});
 </script></body></html>
